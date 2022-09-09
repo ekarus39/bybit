@@ -1,20 +1,3 @@
-"""
-WSGI config for gettingstarted project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/2.1/howto/deployment/wsgi/
-"""
-
-# import os
-#
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gettingstarted.settings")
-#
-# from django.core.wsgi import get_wsgi_application
-#
-# application = get_wsgi_application()
-
 from flask import Flask, request, json
 import ccxt
 import pprint
@@ -64,101 +47,96 @@ def webhook():
     cash = float(balance['USDT']['free'])
     # 현재가격조회
     price1 = binance.fetch_ticker(symbol2)
-    price2 = float(price1['last'])
+    current_price = float(price1['last'])
 
     # 주문가능수량
-    qty = (cash/price2) * (leverage - 0.5)
+    qty = (cash/current_price) * (leverage - 0.5)
 
     # //트레이딩뷰 해석
-    order = data['order']
-    orders = [None] * 3
+    orderType = data['order']
 
     # 보유포지션이 없는경우
     if float(positionAmt) == 0:
-        if order == "buy":
+        if orderType == "buy":
             # 매수/롱 포지션 진입
-            orders[0] = binance.create_order(
+            binance.create_order(
                 symbol=symbol2,
                 type="MARKET",
                 side="buy",
                 amount=qty
             )
-        else:
+            # stop loss
+            binance.create_order(
+                symbol=symbol2,
+                type="STOP_MARKET",
+                side="sell",
+                amount=qty,
+                params={'stopPrice': current_price*0.98}
+            )
+        if orderType == "sell":
             # 매도/숏 포지션 진입
-            orders[0] = binance.create_order(
+            binance.create_order(
                 symbol=symbol2,
                 type="MARKET",
                 side="sell",
                 amount=qty
             )
+            # stop loss
+            binance.create_order(
+                symbol=symbol2,
+                type="STOP_MARKET",
+                side="buy",
+                amount=qty,
+                params={'stopPrice': current_price*1.02}
+            )
     # 포지션 보유중인 경우
     else:
-        if order == "buy":
+        if orderType == "buy":
             # 숏 포지션 보유중인 경우 숏포지션 정리후 롱포지션 진입
             if float(positionAmt) < 0.0:
-                orders[0] = binance.create_order(
+                binance.create_order(
                     symbol=symbol2,
                     type="MARKET",
                     side="buy",
                     amount=qty
                 )
-                orders[0] = binance.create_order(
+                binance.create_order(
                     symbol=symbol2,
                     type="MARKET",
                     side="buy",
                     amount=qty
                 )
-        else:
+                # stop loss
+                binance.create_order(
+                    symbol=symbol2,
+                    type="STOP_MARKET",
+                    side="sell",
+                    amount=qty,
+                    params={'stopPrice': current_price * 0.98}
+                )
+        if orderType == "sell":
             # 롱 포지션 보유중인 경우 롱포지션 정리후 숏포지션 진입
             if float(positionAmt) > 0.0:
-                orders[0] = binance.create_order(
+                binance.create_order(
                     symbol=symbol2,
                     type="MARKET",
                     side="sell",
                     amount=qty
                 )
-                orders[0] = binance.create_order(
+                binance.create_order(
                     symbol=symbol2,
                     type="MARKET",
                     side="sell",
                     amount=qty
                 )
-
-    for order in orders:
-        pprint.pprint(order)
-
-    # # //시장가 주문과TP / SL
-    # orders = [None] * 3
-    #
-    # # market price (ex: 19500$)
-    # orders[0] = binance.create_order(
-    #     symbol="BTC/USDT",
-    #     type="MARKET",
-    #     side="buy",
-    #     amount=0.001
-    # )
-    #
-    # # take profit
-    # orders[1] = binance.create_order(
-    #     symbol="BTC/USDT",
-    #     type="TAKE_PROFIT_MARKET",
-    #     side="sell",
-    #     amount=0.001,
-    #     params={'stopPrice': 19700}
-    # )
-    #
-    # # stop loss
-    # orders[2] = binance.create_order(
-    #     symbol="BTC/USDT",
-    #     type="STOP_MARKET",
-    #     side="sell",
-    #     amount=0.001,
-    #     params={'stopPrice': 19300}
-    # )
-    #
-    # for order in orders:
-    #     pprint.pprint(order)
-
+                # stop loss
+                binance.create_order(
+                    symbol=symbol2,
+                    type="STOP_MARKET",
+                    side="buy",
+                    amount=qty,
+                    params={'stopPrice': current_price*1.02}
+                )
 
 if __name__ == '__main__':
     app.run(debug=True)
