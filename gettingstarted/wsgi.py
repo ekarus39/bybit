@@ -42,15 +42,20 @@ def webhook():
     for position in positions:
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
+            # pprint.pprint(position)
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
     # 구입가능현금보유액
     cash = float(balance['USDT']['free'])
+    if cash > 100:
+        cash = 100
+
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
-    # 주문가능수량
+    # 산규주문가능수량
     qty = (cash/current_price) * (leverage - 0.5)
+
     # 롱포자션 손절퍼센트 설정
     longStopPrice = 0.98
     # 숏포자션 손절퍼센트 설정
@@ -100,21 +105,21 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="buy",
-                    amount=qty
+                    amount=(-positionAmt)
                 )
                 # 매도/숏 포지션 진입
                 binance.create_order(
                     symbol=symbol,
                     type="MARKET",
                     side="buy",
-                    amount=qty
+                    amount=(-positionAmt)
                 )
                 # stop loss
                 binance.create_order(
                     symbol=symbol,
                     type="STOP_MARKET",
                     side="sell",
-                    amount=qty,
+                    amount=(-positionAmt),
                     params={'stopPrice': current_price * longStopPrice}
                 )
         if orderType == "sell":
@@ -125,21 +130,21 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="sell",
-                    amount=qty
+                    amount=positionAmt
                 )
                 # 매수/롱 포지션 진입
                 binance.create_order(
                     symbol=symbol,
                     type="MARKET",
                     side="sell",
-                    amount=qty
+                    amount=positionAmt
                 )
                 # stop loss
                 binance.create_order(
                     symbol=symbol,
                     type="STOP_MARKET",
                     side="buy",
-                    amount=qty,
+                    amount=positionAmt,
                     params={'stopPrice': current_price * shortStopPrice}
                 )
 
