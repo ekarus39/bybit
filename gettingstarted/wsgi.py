@@ -57,7 +57,7 @@ def webhook():
     cash = float(balance['USDT']['free'])
     if cash > 20:
         cash = 20
-    return 'Hello, Flask!'
+
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
     # 산규주문가능수량
