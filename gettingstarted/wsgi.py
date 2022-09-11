@@ -8,15 +8,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    with open("binance-apiKey.txt") as f:
-        lines = f.readlines()
-        api_key = lines[0].strip()
-        secret = lines[1].strip()
     return 'Hello, Flask!'
 
 @app.route('/webhook', methods = ['POST'])
 def webhook():
-
     with open("binance-apiKey.txt") as f:
         lines = f.readlines()
         api_key = lines[0].strip()
@@ -52,8 +47,8 @@ def webhook():
 
     # 구입가능현금보유액
     cash = float(balance['USDT']['free'])
-    if cash > 100:
-        cash = 100
+    if cash > 20:
+        cash = 20
 
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
