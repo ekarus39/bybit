@@ -13,7 +13,7 @@ def index():
 @app.route('/webhook', methods = ['POST'])
 def webhook():
 
-    with open("../binance-apiKey.txt") as f:
+    with open("binance-apiKey.txt") as f:
         lines = f.readlines()
         api_key = lines[0].strip()
         secret = lines[1].strip()
