@@ -77,32 +77,34 @@ def webhook():
                 symbol=symbol,
                 type="MARKET",
                 side="buy",
-                amount=qty
-            )
-            # stop loss
-            binance.create_order(
-                symbol=symbol,
-                type="STOP_MARKET",
-                side="sell",
                 amount=qty,
                 params={'stopPrice': current_price * longStopPrice}
             )
+            # stop loss
+            # binance.create_order(
+            #     symbol=symbol,
+            #     type="STOP_MARKET",
+            #     side="sell",
+            #     amount=qty,
+            #     params={'stopPrice': current_price * longStopPrice}
+            # )
         if orderType == "sell":
             # 매도/숏 포지션 진입
             binance.create_order(
                 symbol=symbol,
                 type="MARKET",
                 side="sell",
-                amount=qty
-            )
-            # stop loss
-            binance.create_order(
-                symbol=symbol,
-                type="STOP_MARKET",
-                side="buy",
                 amount=qty,
                 params={'stopPrice': current_price * shortStopPrice}
             )
+            # stop loss
+            # binance.create_order(
+            #     symbol=symbol,
+            #     type="STOP_MARKET",
+            #     side="buy",
+            #     amount=qty,
+            #     params={'stopPrice': current_price * shortStopPrice}
+            # )
     # 포지션 보유중인 경우
     else:
         if orderType == "buy":
@@ -120,16 +122,17 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="buy",
-                    amount=qty
-                )
-                # stop loss
-                binance.create_order(
-                    symbol=symbol,
-                    type="STOP_MARKET",
-                    side="sell",
                     amount=qty,
                     params={'stopPrice': current_price * longStopPrice}
                 )
+                # stop loss
+                # binance.create_order(
+                #     symbol=symbol,
+                #     type="STOP_MARKET",
+                #     side="sell",
+                #     amount=qty,
+                #     params={'stopPrice': current_price * longStopPrice}
+                # )
         if orderType == "sell":
             # 롱 포지션 보유중인 경우 롱포지션 정리후 숏포지션 진입
             if float(positionAmt) > 0.0:
@@ -145,16 +148,17 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="sell",
-                    amount=qty
-                )
-                # stop loss
-                binance.create_order(
-                    symbol=symbol,
-                    type="STOP_MARKET",
-                    side="buy",
                     amount=qty,
                     params={'stopPrice': current_price * shortStopPrice}
                 )
+                # stop loss
+                # binance.create_order(
+                #     symbol=symbol,
+                #     type="STOP_MARKET",
+                #     side="buy",
+                #     amount=qty,
+                #     params={'stopPrice': current_price * shortStopPrice}
+                # )
 
 if __name__ == '__main__':
     app.run(debug=True)
