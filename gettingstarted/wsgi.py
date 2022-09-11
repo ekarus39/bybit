@@ -12,6 +12,14 @@ def index():
 
 @app.route('/webhook', methods = ['POST'])
 def webhook():
+
+    # 로컬파일패스
+    # with open("../binance-apiKey.txt") as f:
+    #     lines = f.readlines()
+    #     api_key = lines[0].strip()
+    #     secret = lines[1].strip()
+
+    # heroku
     with open("binance-apiKey.txt") as f:
         lines = f.readlines()
         api_key = lines[0].strip()
@@ -41,7 +49,7 @@ def webhook():
     for position in positions:
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
-            # pprint.pprint(position)
+            pprint.pprint(position)
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
@@ -49,16 +57,17 @@ def webhook():
     cash = float(balance['USDT']['free'])
     if cash > 20:
         cash = 20
-
+    return 'Hello, Flask!'
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
     # 산규주문가능수량
-    qty = (cash/current_price) * (leverage - 0.5)
+    # qty = (cash/current_price) * (leverage - 0.5)
+    qty = 16
 
     # 롱포자션 손절퍼센트 설정
-    longStopPrice = 0.98
+    longStopPrice = 0.995
     # 숏포자션 손절퍼센트 설정
-    shortStopPrice = 1.02
+    shortStopPrice = 1.005
 
     # 보유포지션이 없는경우 신규주문
     if float(positionAmt) == 0:
@@ -104,21 +113,21 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="buy",
-                    amount=(-positionAmt)
+                    amount=positionAmt
                 )
                 # 매도/숏 포지션 진입
                 binance.create_order(
                     symbol=symbol,
                     type="MARKET",
                     side="buy",
-                    amount=(-positionAmt)
+                    amount=qty
                 )
                 # stop loss
                 binance.create_order(
                     symbol=symbol,
                     type="STOP_MARKET",
                     side="sell",
-                    amount=(-positionAmt),
+                    amount=qty,
                     params={'stopPrice': current_price * longStopPrice}
                 )
         if orderType == "sell":
@@ -136,14 +145,14 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="sell",
-                    amount=positionAmt
+                    amount=qty
                 )
                 # stop loss
                 binance.create_order(
                     symbol=symbol,
                     type="STOP_MARKET",
                     side="buy",
-                    amount=positionAmt,
+                    amount=qty,
                     params={'stopPrice': current_price * shortStopPrice}
                 )
 
