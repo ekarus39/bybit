@@ -8,15 +8,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # binance 객체 생성
-    binance = ccxt.binance(config={
-        'apiKey': api_key,
-        'secret': secret,
-        'enableRateLimit': True,
-        'options': {
-            'defaultType': 'future'
-        }
-    })
+    with open("binance-apiKey.txt") as f:
+        lines = f.readlines()
+        api_key = lines[0].strip()
+        secret = lines[1].strip()
     return 'Hello, Flask!'
 
 @app.route('/webhook', methods = ['POST'])
