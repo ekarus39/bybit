@@ -49,7 +49,7 @@ def webhook():
     for position in positions:
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
-            pprint.pprint(position)
+            # pprint.pprint(position)
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
@@ -62,7 +62,7 @@ def webhook():
     current_price = float(binance.fetch_ticker(symbol)['last'])
     # 산규주문가능수량
     # qty = (cash/current_price) * (leverage - 0.5)
-    qty = 16
+    qty = 16.0
 
     # 롱포자션 손절퍼센트 설정
     longStopPrice = 0.995
