@@ -199,13 +199,13 @@ def webhook_noswitching():
 
     # 구입가능현금보유액
     cash = float(balance['USDT']['free'])
-    if cash > 50:
-        cash = 50
+    if cash > 20:
+        cash = 20
 
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
     # 산규주문가능수량
-    qty = (cash/current_price) * (leverage - 0.5)
+    qty = (cash/current_price) * (leverage)
 
     # 롱포자션 손절퍼센트 설정
     longStopPrice = 0.99
