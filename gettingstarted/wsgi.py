@@ -6,6 +6,9 @@ import pprint
 
 app = Flask(__name__)
 
+# 실행환경 0:로컬 / 1:heroku서버
+process = 1
+
 @app.route('/')
 def index():
     return 'Hello, Flask!'
@@ -13,17 +16,18 @@ def index():
 @app.route('/webhook', methods = ['POST'])
 def webhook():
 
-    # 로컬파일패스
-    # with open("../binance-apiKey.txt") as f:
-    #     lines = f.readlines()
-    #     api_key = lines[0].strip()
-    #     secret = lines[1].strip()
-
-    # heroku
-    with open("binance-apiKey.txt") as f:
-        lines = f.readlines()
-        api_key = lines[0].strip()
-        secret = lines[1].strip()
+    if process == 0:
+        # 로컬파일패스
+        with open("../binance-apiKey.txt") as f:
+            lines = f.readlines()
+            api_key = lines[0].strip()
+            secret = lines[1].strip()
+    else:
+        # heroku
+        with open("binance-apiKey.txt") as f:
+            lines = f.readlines()
+            api_key = lines[0].strip()
+            secret = lines[1].strip()
 
     # binance 객체 생성
     binance = ccxt.binance(config={
@@ -61,7 +65,7 @@ def webhook():
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
     # 산규주문가능수량
-    qty = (cash/current_price) * (leverage - 0.5)
+    qty = (cash/current_price) * (leverage)
 
     # 롱포자션 손절퍼센트 설정
     longStopPrice = 0.99
@@ -157,17 +161,18 @@ def webhook():
 @app.route('/webhook/noswitching', methods = ['POST'])
 def webhook_noswitching():
 
-    # 로컬파일패스
-    # with open("../binance-apiKey.txt") as f:
-    #     lines = f.readlines()
-    #     api_key = lines[0].strip()
-    #     secret = lines[1].strip()
-
-    # heroku
-    with open("binance-apiKey.txt") as f:
-        lines = f.readlines()
-        api_key = lines[0].strip()
-        secret = lines[1].strip()
+    if process == 0:
+        # 로컬파일패스
+        with open("../binance-apiKey.txt") as f:
+            lines = f.readlines()
+            api_key = lines[0].strip()
+            secret = lines[1].strip()
+    else:
+        # heroku
+        with open("binance-apiKey.txt") as f:
+            lines = f.readlines()
+            api_key = lines[0].strip()
+            secret = lines[1].strip()
 
     # binance 객체 생성
     binance = ccxt.binance(config={
@@ -199,8 +204,8 @@ def webhook_noswitching():
 
     # 구입가능현금보유액
     cash = float(balance['USDT']['free'])
-    if cash > 20:
-        cash = 20
+    if cash > 50:
+        cash = 50
 
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
