@@ -72,7 +72,7 @@ def webhook():
         else:
             cash = 0.0
 
-    cash = 100.0
+    cash = 50.0
 
 
     # 현재가격조회
