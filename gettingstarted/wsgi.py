@@ -72,6 +72,9 @@ def webhook():
         else:
             cash = 0.0
 
+    cash = 100.0
+
+
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
     # 산규주문가능수량
@@ -208,7 +211,7 @@ def webhook_noswitching():
     for position in positions:
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
-            pprint.pprint(position)
+            # pprint.pprint(position)
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
@@ -226,6 +229,7 @@ def webhook_noswitching():
             cash = total - used
         else:
             cash = 0.0
+    cash = 50.0
 
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
