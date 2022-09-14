@@ -82,9 +82,9 @@ def webhook():
     qty = (cash/current_price) * (leverage)
 
     # 롱포자션 손절퍼센트 설정
-    longStopPrice = 0.99
+    longStopPrice = 0.95
     # 숏포자션 손절퍼센트 설정
-    shortStopPrice = 1.01
+    shortStopPrice = 1.05
 
     # 보유포지션이 없는경우 신규주문
     if float(positionAmt) == 0:
