@@ -59,7 +59,7 @@ def webhook():
 
     # 구입가능현금보유액
     cash = 0.0
-    total = float(balance['USDT']['total']) / 2
+    total = float(balance['USDT']['total']) / 4
     used = float(balance['USDT']['used'])
     if positionAmt == 0:
         if used > total:
