@@ -72,7 +72,8 @@ def webhook():
         else:
             cash = 0.0
 
-    cash = 50.0
+    if cash > 50:
+        cash = 50.0
 
 
     # 현재가격조회
@@ -229,7 +230,7 @@ def webhook_noswitching():
             cash = total - used
         else:
             cash = 0.0
-    cash = 50.0
+    cash = 20.0
 
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
