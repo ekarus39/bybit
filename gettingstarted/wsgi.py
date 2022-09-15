@@ -7,10 +7,12 @@ import pprint
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 1
+process = 0
 
 @app.route('/')
 def index():
+    pprint.pprint(1-(int('3')/100))
+
     return 'Hello, Flask!'
 
 @app.route('/webhook', methods = ['POST'])
@@ -53,9 +55,9 @@ def webhook():
     # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + "/" + data['ticker'][-4:]
     # 롱포자션 손절퍼센트 설정
-    longStopPrice = 1-(stopPer/100)
+    longStopPrice = 1-(int(stopPer)/100)
     # 숏포자션 손절퍼센트 설정
-    shortStopPrice = 1+(stopPer/100)
+    shortStopPrice = 1+(int(stopPer)/100)
     #############################################
 
 
