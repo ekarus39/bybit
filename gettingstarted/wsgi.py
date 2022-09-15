@@ -55,7 +55,7 @@ def webhook():
     # 롱포자션 손절퍼센트 설정
     longStopPrice = 1-(stopPer/100)
     # 숏포자션 손절퍼센트 설정
-    shortStopPrice = 1:(stopPer/100)
+    shortStopPrice = 1+(stopPer/100)
     #############################################
 
 
