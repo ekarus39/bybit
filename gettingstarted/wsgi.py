@@ -16,6 +16,7 @@ def index():
 @app.route('/webhook', methods = ['POST'])
 def webhook():
 
+    # API key ###################################
     if process == 0:
         # 로컬파일패스
         with open("../binance-apiKey.txt") as f:
@@ -38,13 +39,27 @@ def webhook():
             'defaultType': 'future'
         }
     })
+    #############################################
 
-    # 트레이딩뷰에서 보내온 알림해석
+
+    # 트레이딩뷰에서 보내온 알림해석 #################
     data = json.loads(request.data)
+    # 매수/매도
     orderType = data['order']
+    # 매수 한계금액
+    seed = data['seed']
+    # 손절 퍼센트
+    stopPer = data['stopPer']
+    # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + "/" + data['ticker'][-4:]
+    # 롱포자션 손절퍼센트 설정
+    longStopPrice = 1-(stopPer/100)
+    # 숏포자션 손절퍼센트 설정
+    shortStopPrice = 1:(stopPer/100)
+    #############################################
 
-    # 바이낸스에 USDS-M 선물 잔고조회
+
+    # 바이낸스에 USDS-M 선물 잔고조회 ###############
     balance = binance.fetch_balance(params={"type": "future"})
     positions = balance['info']['positions']
     positionAmt = 0.0
@@ -57,34 +72,28 @@ def webhook():
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
-    # 구입가능현금보유액
-    cash = 0.0
-    total = float(balance['USDT']['total']) / 4
-    used = float(balance['USDT']['used'])
-    if positionAmt == 0:
-        if used > total:
-            cash = total - (used - total)
-        else:
-            cash = total
-    else:
-        if total > used:
-            cash = total - used
-        else:
-            cash = 0.0
-
-    if cash > 50:
-        cash = 50.0
-
-
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
+
+    # 구입가능현금보유액
+    cash = 0.0
+    free = float(balance['USDT']['free']) / 4
+    used = float(balance['USDT']['used'])
+    if positionAmt == 0:
+        if free > seed:
+            cash = seed
+        else:
+            cash = free
+    else:
+        if seed > free + (positionAmt * current_price):
+            cash = free + (positionAmt * current_price)
+        else:
+            cash = seed
+
     # 산규주문가능수량
     qty = (cash/current_price) * (leverage)
+    #############################################
 
-    # 롱포자션 손절퍼센트 설정
-    longStopPrice = 0.95
-    # 숏포자션 손절퍼센트 설정
-    shortStopPrice = 1.05
 
     # 보유포지션이 없는경우 신규주문
     if float(positionAmt) == 0:
