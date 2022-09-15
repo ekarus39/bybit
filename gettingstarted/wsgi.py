@@ -49,7 +49,7 @@ def webhook():
     # 매수/매도
     orderType = data['order']
     # 매수 한계금액
-    seed = data['seed']
+    seed = float(data['seed'])
     # 손절 퍼센트
     stopPer = data['stopPer']
     # 거래대상 코인
@@ -87,8 +87,8 @@ def webhook():
         else:
             cash = free
     else:
-        if seed > free + (positionAmt * current_price):
-            cash = free + (positionAmt * current_price)
+        if seed > free + (-positionAmt * current_price):
+            cash = free + (-positionAmt * current_price)
         else:
             cash = seed
 
