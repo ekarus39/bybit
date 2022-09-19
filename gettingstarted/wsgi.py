@@ -1,7 +1,6 @@
 import string
 
 from flask import Flask, request, json
-from pybit import HTTP
 import ccxt
 import pprint
 
