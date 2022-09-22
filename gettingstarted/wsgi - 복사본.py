@@ -7,7 +7,7 @@ import pprint
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 1
+process = 0
 
 @app.route('/')
 def index():
@@ -19,7 +19,7 @@ def index():
 def webhook():
 
     # API key ###################################
-    if process == 0:
+    if process == 1:
         # 로컬파일패스
         with open("../binance-apiKey.txt") as f:
             lines = f.readlines()
@@ -71,13 +71,14 @@ def webhook():
     for position in positions:
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
-            # pprint.pprint(position)
+            pprint.pprint(position)
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
     # 현재가격조회
     current_price = float(binance.fetch_ticker(symbol)['last'])
-     # 구입가능현금보유액
+    pprint.pprint(current_price)
+    # 구입가능현금보유액
     cash = 0.0
     free = float(balance['USDT']['free']) / 4
     if positionAmt == 0:
@@ -152,13 +153,7 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="buy",
-                    amount=(-positionAmt)
-                )
-                binance.create_order(
-                    symbol=symbol,
-                    type="MARKET",
-                    side="buy",
-                    amount=qty
+                    amount=(-positionAmt) + qty
                 )
                 # 신규 롱포지션 stop loss 설정
                 binance.create_order(
@@ -188,13 +183,7 @@ def webhook():
                     symbol=symbol,
                     type="MARKET",
                     side="sell",
-                    amount=positionAmt
-                )
-                binance.create_order(
-                    symbol=symbol,
-                    type="MARKET",
-                    side="sell",
-                    amount=qty
+                    amount=positionAmt + qty
                 )
                 # 신규 숏포지션 stop loss 설정
                 binance.create_order(
