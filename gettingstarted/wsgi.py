@@ -169,6 +169,11 @@ def webhook():
                     params={'stopPrice': current_price * longStopPrice}
                 )
             else:
+                # 현재 보유중인 포지션의 stop loss 주문 취소
+                binance.cancel_order(
+                    id=order_id,
+                    symbol=symbol
+                )
                 # 현재 보유중인 롱포지션 정리
                 binance.create_order(
                     symbol=symbol,
@@ -205,6 +210,11 @@ def webhook():
                     params={'stopPrice': current_price * shortStopPrice}
                 )
             else:
+                # 현재 보유중인 포지션의 stop loss 주문 취소
+                binance.cancel_order(
+                    id=order_id,
+                    symbol=symbol
+                )
                 # 현재 보유중인 숏포지션 정리
                 binance.create_order(
                     symbol=symbol,
