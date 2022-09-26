@@ -80,7 +80,7 @@ def webhook():
     current_price = float(binance.fetch_ticker(symbol)['last'])
      # 구입가능현금보유액
     cash = 0.0
-    free = float(balance['USDT']['free']) / 4
+    free = float(balance['USDT']['free'])
     if positionAmt == 0:
         if free > seed:
             cash = seed
