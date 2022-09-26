@@ -7,13 +7,11 @@ import pprint
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 1
+process = 0
 
 @app.route('/')
 def index():
-    pprint.pprint(1-(int('3')/100))
-
-    return 'Hello, Flask!'
+   return 'Hello, Flask!'
 
 @app.route('/webhook', methods = ['POST'])
 def webhook():
@@ -169,19 +167,25 @@ def webhook():
                 #     amount=qty,
                 #     params={'stopPrice': current_price * longStopPrice}
                 # )
-            # else:
-            #     # 현재 보유중인 포지션의 stop loss 주문 취소
-            #     binance.cancel_order(
-            #         id=order_id,
-            #         symbol=symbol
-            #     )
-            #     # 현재 보유중인 롱포지션 정리
-            #     binance.create_order(
-            #         symbol=symbol,
-            #         type="MARKET",
-            #         side="sell",
-            #         amount=positionAmt
-            #     )
+            else:
+                #     # 현재 보유중인 포지션의 stop loss 주문 취소
+                #     binance.cancel_order(
+                #         id=order_id,
+                #         symbol=symbol
+                #     )
+                # 현재 보유중인 롱포지션 정리
+                # binance.create_order(
+                #     symbol=symbol,
+                #     type="MARKET",
+                #     side="sell",
+                #     amount=positionAmt
+                # )
+                binance.create_order(
+                    symbol=symbol,
+                    type="MARKET",
+                    side="buy",
+                    amount=qty
+                )
         if orderType == "sell":
             if float(positionAmt) > 0.0:
                 # 현재 보유중인 포지션의 stop loss 주문 취소
@@ -210,7 +214,7 @@ def webhook():
                 #     amount=qty,
                 #     params={'stopPrice': current_price * shortStopPrice}
                 # )
-            # else:
+            else:
             #     # 현재 보유중인 포지션의 stop loss 주문 취소
             #     binance.cancel_order(
             #         id=order_id,
@@ -223,7 +227,12 @@ def webhook():
             #         side="buy",
             #         amount=(-positionAmt)
             #     )
-
+                binance.create_order(
+                    symbol=symbol,
+                    type="MARKET",
+                    side="sell",
+                    amount=qty
+                )
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -19,7 +19,7 @@ def index():
 def webhook():
 
     # API key ###################################
-    if process == 1:
+    if process == 0:
         # 로컬파일패스
         with open("../binance-apiKey.txt") as f:
             lines = f.readlines()
