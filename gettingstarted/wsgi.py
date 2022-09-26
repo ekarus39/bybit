@@ -7,7 +7,7 @@ import pprint
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 0
+process = 1
 
 @app.route('/')
 def index():
