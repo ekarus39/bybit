@@ -35,3 +35,4 @@ virtualenv==20.16.4
 Werkzeug==2.2.2
 whitenoise==6.2.0
 yarl==1.7.2
+pybit==2.4.0
