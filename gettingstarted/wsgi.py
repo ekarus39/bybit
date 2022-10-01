@@ -300,10 +300,10 @@ def webhook_bybit():
     # 익절퍼센트 설정
     profitPerPrice = 0.0
 
-    if orderType == 'Buy':
+    if orderType == 'buy':
         lossPerPrice = 1 - (int(lossPer) / 100)
         profitPerPrice = 1 + (int(profitPer) / 100)
-    if orderType == 'Sell':
+    if orderType == 'sell':
         lossPerPrice = 1 + (int(lossPer) / 100)
         profitPerPrice = 1 - (int(profitPer) / 100)
 
@@ -319,10 +319,9 @@ def webhook_bybit():
             if position["size"] != 0:
                 posQt = position["size"]
 
-    if orderType == "Buy":
+    if orderType == "buy":
         # 산규주문가능수량 계산
         qty = round((cash / current_buy_price) * (buyLeverage))
-        print(posQt)
         if posQt > 0:
             # 보유포지션 청산
             exchange.place_active_order(
@@ -351,7 +350,7 @@ def webhook_bybit():
             stop_loss=lossprice[0:len(str(current_buy_price))]
         )
 
-    if orderType == "Sell":
+    if orderType == "sell":
         # 산규주문가능수량 계산
         qty = round((cash / current_sell_price) * (sellLeverage))
         if posQt > 0:
