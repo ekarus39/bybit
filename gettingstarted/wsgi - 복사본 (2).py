@@ -1,15 +1,13 @@
 import string
 
 from flask import Flask, request, json
-from pybit import HTTP
 import ccxt
 import pprint
-import datetime
 
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 0
+process = 1
 
 @app.route('/')
 def index():
@@ -235,154 +233,6 @@ def webhook():
                     side="sell",
                     amount=qty
                 )
-
-@app.route('/webhook/bybit', methods = ['POST'])
-def webhook_bybit():
-
-    # API key ###################################
-    if process == 1:
-        # 로컬파일패스
-        with open("../bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
-    else:
-        # heroku
-        with open("bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
-
-    # bybit 객체 생성
-    exchange = HTTP(
-        endpoint="https://api.bybit.com",
-        api_key=apiKey,
-        api_secret=secret
-    )
-    #############################################
-
-
-    # 트레이딩뷰에서 보내온 알림해석 #################
-    data = json.loads(request.data)
-    # 매수/매도
-    orderType = data['order']
-    # 매수 한계금액
-    seed = float(data['seed'])
-    # 손절 퍼센트
-    lossPer = data['lossPer']
-    # 익절 퍼센트
-    profitPer = data['profitPer']
-    # 거래대상 코인
-    symbol = data['ticker'][0:len(data['ticker']) - 4] + data['ticker'][-4:]
-    #############################################
-
-    # USDT 잔고조회
-    free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
-    # 보유COIN 조회
-    positions = exchange.my_position(symbol=symbol)['result']
-
-    # 구입가능현금보유액 계산
-    cash = 0.0
-    if free > seed:
-        cash = seed
-    else:
-        cash = free
-
-    buyLeverage = 0.0
-    sellLeverage = 0.0
-
-    # 현재가격조회
-    current_buy_price = float(exchange.latest_information_for_symbol(symbol=symbol)['result'][0]['ask_price'])
-    current_sell_price = float(exchange.latest_information_for_symbol(symbol=symbol)['result'][0]['bid_price'])
-
-    # 손절퍼센트 설정
-    lossPerPrice = 0.0
-    # 익절퍼센트 설정
-    profitPerPrice = 0.0
-
-    if orderType == 'Buy':
-        lossPerPrice = 1 - (int(lossPer) / 100)
-        profitPerPrice = 1 + (int(profitPer) / 100)
-    if orderType == 'Sell':
-        lossPerPrice = 1 + (int(lossPer) / 100)
-        profitPerPrice = 1 - (int(profitPer) / 100)
-
-    # 보유포지션
-    posQt = 0
-    for position in positions:
-        if position["side"] == 'Buy':
-            buyLeverage = position["leverage"]
-            if position["size"] != 0:
-                posQt = position["size"]
-        if position["side"] == 'Sell':
-            sellLeverage = position["leverage"]
-            if position["size"] != 0:
-                posQt = position["size"]
-
-    if orderType == "Buy":
-        # 산규주문가능수량 계산
-        qty = round((cash / current_buy_price) * (buyLeverage))
-        print(posQt)
-        if posQt > 0:
-            # 보유포지션 청산
-            exchange.place_active_order(
-                symbol=symbol,
-                side='Buy',
-                order_type="Market",
-                qty=posQt,
-                time_in_force="GoodTillCancel",
-                reduce_only=True,
-                close_on_trigger=True,
-            )
-        #
-        # # 매수/롱 포지션 진입
-        lossprice = str(current_buy_price * lossPerPrice)
-        profitprice = str(current_buy_price * profitPerPrice)
-
-        resp = exchange.place_active_order(
-            symbol=symbol,
-            side="Buy",
-            order_type="Market",
-            qty=qty,
-            time_in_force="GoodTillCancel",
-            reduce_only=False,
-            close_on_trigger=False,
-            take_profit=profitprice[0:len(str(current_buy_price))],
-            stop_loss=lossprice[0:len(str(current_buy_price))]
-        )
-
-    if orderType == "Sell":
-        # 산규주문가능수량 계산
-        qty = round((cash / current_sell_price) * (sellLeverage))
-        if posQt > 0:
-             # 보유포지션 청산
-            exchange.place_active_order(
-                symbol=symbol,
-                side='Sell',
-                order_type="Market",
-                qty=posQt,
-                time_in_force="GoodTillCancel",
-                reduce_only=True,
-                close_on_trigger=True,
-            )
-        # 매도/숏 포지션 진입
-        lossprice = str(current_sell_price * lossPerPrice)
-        profitprice = str(current_sell_price * profitPerPrice)
-
-        resp = exchange.place_active_order(
-            symbol=symbol,
-            side="Sell",
-            order_type="Market",
-            qty=qty,
-            time_in_force="GoodTillCancel",
-            reduce_only=False,
-            close_on_trigger=False,
-            take_profit=profitprice[0:len(str(current_sell_price))],
-            stop_loss=lossprice[0:len(str(current_sell_price))]
-
-        )
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
