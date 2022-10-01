@@ -1,10 +1,7 @@
-import string
 
 from flask import Flask, request, json
 from pybit import HTTP
 import ccxt
-import pprint
-import datetime
 
 app = Flask(__name__)
 
@@ -260,7 +257,6 @@ def webhook_bybit():
         api_secret=secret
     )
     #############################################
-
 
     # 트레이딩뷰에서 보내온 알림해석 #################
     data = json.loads(request.data)
