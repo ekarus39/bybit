@@ -6,7 +6,7 @@ import ccxt
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 0
+process = 1
 
 @app.route('/')
 def index():
@@ -237,7 +237,7 @@ def webhook():
 def webhook_bybit():
 
     # API key ###################################
-    if process == 1:
+    if process == 0:
         # 로컬파일패스
         with open("../bybit-apiKey.txt") as f:
             lines = f.readlines()
