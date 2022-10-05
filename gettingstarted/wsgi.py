@@ -6,7 +6,7 @@ import ccxt
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:heroku서버
-process = 1
+process = 0
 
 @app.route('/')
 def index():
@@ -48,7 +48,7 @@ def webhook():
     # 매수 한계금액
     seed = float(data['seed'])
     # 손절 퍼센트
-    stopPer = data['stopPer']
+    stopPer = data['lossPer']
     # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + "/" + data['ticker'][-4:]
     # 롱포자션 손절퍼센트 설정
