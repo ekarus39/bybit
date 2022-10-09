@@ -48,15 +48,24 @@ def webhook():
     # 매수 한계금액
     seed = float(data['seed'])
     # 손절 퍼센트
-    stopPer = data['lossPer']
+    lossPer = data['lossPer']
+    # 익절 퍼센트
+    profitPer = data['profitPer']
     # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + "/" + data['ticker'][-4:]
-    # 롱포자션 손절퍼센트 설정
-    longStopPrice = 1-(int(stopPer)/100)
-    # 숏포자션 손절퍼센트 설정
-    shortStopPrice = 1+(int(stopPer)/100)
-    #############################################
 
+    # 손절퍼센트 설정
+    lossPerPrice = 0.0
+    # 익절퍼센트 설정
+    profitPerPrice = 0.0
+
+    if orderType == 'buy':
+        lossPerPrice = 1 - (float(lossPer) / 100)
+        profitPerPrice = 1 + (float(profitPer) / 100)
+    if orderType == 'sell':
+        lossPerPrice = 1 + (float(lossPer) / 100)
+        profitPerPrice = 1 - (float(profitPer) / 100)
+    #############################################
 
     # 바이낸스에 USDS-M 선물 잔고조회 ###############
     balance = binance.fetch_balance(params={"type": "future"})
@@ -116,8 +125,17 @@ def webhook():
                 type="STOP_MARKET",
                 side="sell",
                 amount=qty,
-                params={'stopPrice': current_price * longStopPrice}
+                params={'stopPrice': current_price * lossPerPrice}
             )
+            # take profit 설정
+            binance.create_order(
+                symbol=symbol,
+                type="TAKE_PROFIT_MARKET",
+                side="sell",
+                amount=qty,
+                params={'stopPrice': current_price * profitPerPrice}
+            )
+
         if orderType == "sell":
             # 매도/숏 포지션 진입
             binance.create_order(
@@ -132,8 +150,17 @@ def webhook():
                 type="STOP_MARKET",
                 side="buy",
                 amount=qty,
-                params={'stopPrice': current_price * shortStopPrice}
+                params={'stopPrice': current_price * lossPerPrice}
             )
+            # take profit 설정
+            binance.create_order(
+                symbol=symbol,
+                type="TAKE_PROFIT_MARKET",
+                side="buy",
+                amount=qty,
+                params={'stopPrice': current_price * profitPerPrice}
+            )
+
     # 포지션 보유중인 경우
     else:
         open_order = binance.fetch_open_orders(symbol=symbol)
@@ -164,7 +191,15 @@ def webhook():
                     type="STOP_MARKET",
                     side="sell",
                     amount=qty,
-                    params={'stopPrice': current_price * longStopPrice}
+                    params={'stopPrice': current_price * lossPerPrice}
+                )
+                # take profit 설정
+                binance.create_order(
+                    symbol=symbol,
+                    type="TAKE_PROFIT_MARKET",
+                    side="sell",
+                    amount=qty,
+                    params={'stopPrice': current_price * profitPerPrice}
                 )
             # else:
             #     # 현재 보유중인 포지션의 stop loss 주문 취소
@@ -211,7 +246,15 @@ def webhook():
                     type="STOP_MARKET",
                     side="buy",
                     amount=qty,
-                    params={'stopPrice': current_price * shortStopPrice}
+                    params={'stopPrice': current_price * lossPerPrice}
+                )
+                # take profit 설정
+                binance.create_order(
+                    symbol=symbol,
+                    type="TAKE_PROFIT_MARKET",
+                    side="buy",
+                    amount=qty,
+                    params={'stopPrice': current_price * profitPerPrice}
                 )
             # else:
             #     # 현재 보유중인 포지션의 stop loss 주문 취소
@@ -297,11 +340,11 @@ def webhook_bybit():
     profitPerPrice = 0.0
 
     if orderType == 'buy':
-        lossPerPrice = 1 - (int(lossPer) / 100)
-        profitPerPrice = 1 + (int(profitPer) / 100)
+        lossPerPrice = 1 - (float(lossPer) / 100)
+        profitPerPrice = 1 + (float(profitPer) / 100)
     if orderType == 'sell':
-        lossPerPrice = 1 + (int(lossPer) / 100)
-        profitPerPrice = 1 - (int(profitPer) / 100)
+        lossPerPrice = 1 + (float(lossPer) / 100)
+        profitPerPrice = 1 - (float(profitPer) / 100)
 
     # 보유포지션
     posQt = 0
