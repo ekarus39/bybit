@@ -406,7 +406,6 @@ def webhook_bybit():
         else:
             qty = round(qty)
 
-        return
         if posQt > 0:
              # 보유포지션 청산
             exchange.place_active_order(
