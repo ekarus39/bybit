@@ -116,17 +116,33 @@ def webhook():
         qty = round(qty)
     #############################################
 
-    # 보유포지션이 없는경우 신규주문
-    if float(positionAmt) == 0:
-        if orderType == "buy":
-            # 매수/롱 포지션 진입
+    if orderType == "buy":
+        if float(positionAmt) < 0.0:
+            open_order = binance.fetch_open_orders(symbol=symbol)
+            order_id = open_order[0]['info']['orderId']
+
+            # 현재 보유중인 포지션의 stop loss 주문 취소
+            binance.cancel_order(
+                id=order_id,
+                symbol=symbol
+            )
+            # 현재 보유중인 숏포지션 정리 &
+            binance.create_order(
+                symbol=symbol,
+                type="MARKET",
+                side="buy",
+                amount=(-positionAmt)
+            )
+
+        # 신규 롱포지션 진입
+        if comment == "Long Only":
             binance.create_order(
                 symbol=symbol,
                 type="MARKET",
                 side="buy",
                 amount=qty
             )
-            # stop loss 설정
+            # 신규 롱포지션 stop loss 설정
             binance.create_order(
                 symbol=symbol,
                 type="STOP_MARKET",
@@ -142,16 +158,32 @@ def webhook():
                 amount=qty,
                 params={'stopPrice': current_price * profitPerPrice}
             )
+    if orderType == "sell":
+        if float(positionAmt) > 0.0:
+            open_order = binance.fetch_open_orders(symbol=symbol)
+            order_id = open_order[0]['info']['orderId']
 
-        if orderType == "sell":
-            # 매도/숏 포지션 진입
+            # 현재 보유중인 포지션의 stop loss 주문 취소
+            binance.cancel_order(
+                id=order_id,
+                symbol=symbol
+            )
+            # 현재 보유중인 롱포지션 정리
+            binance.create_order(
+                symbol=symbol,
+                type="MARKET",
+                side="sell",
+                amount=positionAmt
+            )
+        # 신규 숏포지션 진입
+        if comment == "Short Only":
             binance.create_order(
                 symbol=symbol,
                 type="MARKET",
                 side="sell",
                 amount=qty
             )
-            # stop loss 설정
+            # 신규 숏포지션 stop loss 설정
             binance.create_order(
                 symbol=symbol,
                 type="STOP_MARKET",
@@ -167,87 +199,6 @@ def webhook():
                 amount=qty,
                 params={'stopPrice': current_price * profitPerPrice}
             )
-
-    # 포지션 보유중인 경우
-    else:
-        open_order = binance.fetch_open_orders(symbol=symbol)
-        order_id = open_order[0]['info']['orderId']
-        if orderType == "buy":
-            if float(positionAmt) < 0.0:
-                # 현재 보유중인 포지션의 stop loss 주문 취소
-                binance.cancel_order(
-                    id=order_id,
-                    symbol=symbol
-                )
-                # 현재 보유중인 숏포지션 정리 &
-                binance.create_order(
-                    symbol=symbol,
-                    type="MARKET",
-                    side="buy",
-                    amount=(-positionAmt)
-                )
-                # 신규 롱포지션 진입
-                if comment == "Long Only":
-                    binance.create_order(
-                        symbol=symbol,
-                        type="MARKET",
-                        side="buy",
-                        amount=qty
-                    )
-                    # 신규 롱포지션 stop loss 설정
-                    binance.create_order(
-                        symbol=symbol,
-                        type="STOP_MARKET",
-                        side="sell",
-                        amount=qty,
-                        params={'stopPrice': current_price * lossPerPrice}
-                    )
-                    # take profit 설정
-                    binance.create_order(
-                        symbol=symbol,
-                        type="TAKE_PROFIT_MARKET",
-                        side="sell",
-                        amount=qty,
-                        params={'stopPrice': current_price * profitPerPrice}
-                    )
-        if orderType == "sell":
-            if float(positionAmt) > 0.0:
-                # 현재 보유중인 포지션의 stop loss 주문 취소
-                binance.cancel_order(
-                    id=order_id,
-                    symbol=symbol
-                )
-                # 현재 보유중인 롱포지션 정리
-                binance.create_order(
-                    symbol=symbol,
-                    type="MARKET",
-                    side="sell",
-                    amount=positionAmt
-                )
-                # 신규 숏포지션 진입
-                if comment == "Short Only":
-                    binance.create_order(
-                        symbol=symbol,
-                        type="MARKET",
-                        side="sell",
-                        amount=qty
-                    )
-                    # 신규 숏포지션 stop loss 설정
-                    binance.create_order(
-                        symbol=symbol,
-                        type="STOP_MARKET",
-                        side="buy",
-                        amount=qty,
-                        params={'stopPrice': current_price * lossPerPrice}
-                    )
-                    # take profit 설정
-                    binance.create_order(
-                        symbol=symbol,
-                        type="TAKE_PROFIT_MARKET",
-                        side="buy",
-                        amount=qty,
-                        params={'stopPrice': current_price * profitPerPrice}
-                    )
 
 @app.route('/webhook/bybit', methods = ['POST'])
 def webhook_bybit():
