@@ -107,6 +107,10 @@ def webhook():
 
     # 산규주문가능수량
     qty = (cash/current_price) * (leverage)
+    if qty < 1:
+        qty = str(qty)[0:5]
+    else:
+        qty = round(qty)
     #############################################
 
     # 보유포지션이 없는경우 신규주문
@@ -360,7 +364,12 @@ def webhook_bybit():
 
     if orderType == "buy":
         # 산규주문가능수량 계산
-        qty = round((cash / current_buy_price) * (buyLeverage))
+        qty = ((cash / current_buy_price) * (buyLeverage))
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = round(qty)
+
         if posQt > 0:
             # 보유포지션 청산
             exchange.place_active_order(
@@ -391,7 +400,13 @@ def webhook_bybit():
 
     if orderType == "sell":
         # 산규주문가능수량 계산
-        qty = round((cash / current_sell_price) * (sellLeverage))
+        qty = ((cash / current_sell_price) * (sellLeverage))
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = round(qty)
+
+        return
         if posQt > 0:
              # 보유포지션 청산
             exchange.place_active_order(
