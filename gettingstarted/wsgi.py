@@ -138,7 +138,7 @@ def webhook():
             )
 
         # 신규 롱포지션 진입
-        if comment == "Long Only":
+        if comment == "LongOnly":
             binance.create_order(
                 symbol=symbol,
                 type="MARKET",
@@ -179,7 +179,7 @@ def webhook():
                 amount=positionAmt
             )
         # 신규 숏포지션 진입
-        if comment == "Short Only":
+        if comment == "ShortOnly":
             binance.create_order(
                 symbol=symbol,
                 type="MARKET",
@@ -307,7 +307,7 @@ def webhook_bybit():
                 reduce_only=True,
                 close_on_trigger=True,
             )
-        if comment == "Long Only":
+        if comment == "LongOnly":
             # 매수/롱 포지션 진입
             lossprice = str(current_buy_price * lossPerPrice)
             profitprice = str(current_buy_price * profitPerPrice)
@@ -343,7 +343,7 @@ def webhook_bybit():
                 reduce_only=True,
                 close_on_trigger=True,
             )
-        if comment == "Short Only":
+        if comment == "ShortOnly":
             # 매도/숏 포지션 진입
             lossprice = str(current_sell_price * lossPerPrice)
             profitprice = str(current_sell_price * profitPerPrice)
