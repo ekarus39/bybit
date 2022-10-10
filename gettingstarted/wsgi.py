@@ -90,22 +90,25 @@ def webhook():
      # 구입가능현금보유액
     cash = 0.0
     free = float(balance['USDT']['free'])
-    if positionAmt == 0:
-        if free > seed:
-            cash = seed
-        else:
-            cash = free
+    if seed == 0:
+        cash = free
     else:
-        if positionAmt < 0:
-            if seed > free + (-positionAmt * current_price):
-                cash = free + (-positionAmt * current_price)
-            else:
+        if positionAmt == 0:
+            if free > seed:
                 cash = seed
+            else:
+                cash = free
         else:
-            if seed > free + (positionAmt * current_price):
-                cash = free + (positionAmt * current_price)
+            if positionAmt < 0:
+                if seed > free + (-positionAmt * current_price):
+                    cash = free + (-positionAmt * current_price)
+                else:
+                    cash = seed
             else:
-                cash = seed
+                if seed > free + (positionAmt * current_price):
+                    cash = free + (positionAmt * current_price)
+                else:
+                    cash = seed
 
 
     # 산규주문가능수량
