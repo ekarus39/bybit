@@ -81,34 +81,34 @@ def webhook():
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
             # pprint.pprint(position)
+
+            # 현재가격조회
+            current_price = float(binance.fetch_ticker(symbol)['last'])
+            # 구입가능현금보유액
+            cash = 0
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
 
-
-    # 현재가격조회
-    current_price = float(binance.fetch_ticker(symbol)['last'])
-     # 구입가능현금보유액
-    cash = 0.0
-    free = float(balance['USDT']['free'])
-    if seed == 0:
-        cash = free
-    else:
-        if positionAmt == 0:
-            if free > seed:
-                cash = seed
-            else:
-                cash = free
-        else:
-            if positionAmt < 0:
-                if seed > free + (-positionAmt * current_price):
-                    cash = free + (-positionAmt * current_price)
-                else:
-                    cash = seed
-            else:
-                if seed > free + (positionAmt * current_price):
-                    cash = free + (positionAmt * current_price)
-                else:
-                    cash = seed
+    # free = float(balance['USDT']['free'])
+    # if seed == 0:
+    #     cash = free
+    # else:
+    #     if positionAmt == 0:
+    #         if free > seed:
+    #             cash = seed
+    #         else:
+    #             cash = free
+    #     else:
+    #         if positionAmt < 0:
+    #             if seed > free + (-positionAmt * current_price):
+    #                 cash = free + (-positionAmt * current_price)
+    #             else:
+    #                 cash = seed
+    #         else:
+    #             if seed > free + (positionAmt * current_price):
+    #                 cash = free + (positionAmt * current_price)
+    #             else:
+    #                 cash = seed
 
 
     # 산규주문가능수량
@@ -122,13 +122,12 @@ def webhook():
     if orderType == "buy":
         if float(positionAmt) < 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
-            order_id = open_order[0]['info']['orderId']
-
-            # 현재 보유중인 포지션의 stop loss 주문 취소
-            binance.cancel_order(
-                id=order_id,
-                symbol=symbol
-            )
+            for order_id in open_order:
+                # 현재 보유중인 포지션의 stop loss 주문 취소
+                binance.cancel_order(
+                    id=order_id['info']['orderId'],
+                    symbol=symbol
+                )
             # 현재 보유중인 숏포지션 정리 &
             binance.create_order(
                 symbol=symbol,
@@ -136,6 +135,21 @@ def webhook():
                 side="buy",
                 amount=(-positionAmt)
             )
+
+        balance = binance.fetch_balance(params={"type": "future"})
+        free = float(balance['USDT']['free'])
+        # 구입가능현금보유액 계산
+        cash = 0.0
+        if free > seed:
+            cash = seed
+        else:
+            cash = free
+        # 산규주문가능수량
+        qty = (cash / current_price) * (leverage)
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = round(qty)
 
         # 신규 롱포지션 진입
         if comment == "Long Only":
@@ -164,13 +178,12 @@ def webhook():
     if orderType == "sell":
         if float(positionAmt) > 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
-            order_id = open_order[0]['info']['orderId']
-
-            # 현재 보유중인 포지션의 stop loss 주문 취소
-            binance.cancel_order(
-                id=order_id,
-                symbol=symbol
-            )
+            for order_id in open_order:
+                # 현재 보유중인 포지션의 stop loss 주문 취소
+                binance.cancel_order(
+                    id=order_id,
+                    symbol=symbol
+                )
             # 현재 보유중인 롱포지션 정리
             binance.create_order(
                 symbol=symbol,
@@ -178,6 +191,22 @@ def webhook():
                 side="sell",
                 amount=positionAmt
             )
+
+        balance = binance.fetch_balance(params={"type": "future"})
+        free = float(balance['USDT']['free'])
+        # 구입가능현금보유액 계산
+        cash = 0.0
+        if free > seed:
+            cash = seed
+        else:
+            cash = free
+        # 산규주문가능수량
+        qty = (cash / current_price) * (leverage)
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = round(qty)
+
         # 신규 숏포지션 진입
         if comment == "Short Only":
             binance.create_order(
