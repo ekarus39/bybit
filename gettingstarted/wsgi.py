@@ -111,7 +111,7 @@ def webhook():
                     cash = seed
 
 
-    산규주문가능수량
+    # 신규주문가능수량
     qty = (cash/current_price) * (leverage)
     if qty < 1:
         qty = str(qty)[0:5]
@@ -231,7 +231,7 @@ def webhook():
                 amount=qty,
                 params={'stopPrice': current_price * profitPerPrice}
             )
-    
+
 
 @app.route('/webhook/bybit', methods = ['POST'])
 def webhook_bybit():
