@@ -143,7 +143,7 @@ def webhook():
         if free > seed:
             cash = seed
         else:
-            cash = free
+            cash = free-5
         # 산규주문가능수량
         qty = (cash / current_price) * (leverage)
         if qty < 1:
@@ -199,7 +199,7 @@ def webhook():
         if free > seed:
             cash = seed
         else:
-            cash = free
+            cash = free-5
         # 산규주문가능수량
         qty = (cash / current_price) * (leverage)
         if qty < 1:
