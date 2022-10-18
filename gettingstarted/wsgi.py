@@ -320,7 +320,6 @@ def webhook_bybit():
             if position["size"] != 0:
                 sellPosQt = position["size"]
 
-    return
     if orderType == "buy":
         # 산규주문가능수량 계산
         qty = ((cash / current_buy_price) * (buyLeverage))
