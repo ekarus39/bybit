@@ -277,6 +277,7 @@ def webhook_bybit():
 
     # USDT 잔고조회
     free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
+
     # 보유COIN 조회
     positions = exchange.my_position(symbol=symbol)['result']
 
@@ -307,17 +308,19 @@ def webhook_bybit():
         profitPerPrice = 1 - (float(profitPer) / 100)
 
     # 보유포지션
-    posQt = 0
+    buyPosQt = 0
+    sellPosQt = 0
     for position in positions:
         if position["side"] == 'Buy':
             buyLeverage = position["leverage"]
             if position["size"] != 0:
-                posQt = position["size"]
+                buyPosQt = position["size"]
         if position["side"] == 'Sell':
             sellLeverage = position["leverage"]
             if position["size"] != 0:
-                posQt = position["size"]
+                sellPosQt = position["size"]
 
+    return
     if orderType == "buy":
         # 산규주문가능수량 계산
         qty = ((cash / current_buy_price) * (buyLeverage))
@@ -326,13 +329,13 @@ def webhook_bybit():
         else:
             qty = round(qty)
 
-        if posQt > 0:
+        if sellPosQt > 0:
             # 보유포지션 청산
             exchange.place_active_order(
                 symbol=symbol,
                 side='Buy',
                 order_type="Market",
-                qty=posQt,
+                qty=sellPosQt,
                 time_in_force="GoodTillCancel",
                 reduce_only=True,
                 close_on_trigger=True,
@@ -362,13 +365,13 @@ def webhook_bybit():
         else:
             qty = round(qty)
 
-        if posQt > 0:
+        if buyPosQt > 0:
              # 보유포지션 청산
             exchange.place_active_order(
                 symbol=symbol,
                 side='Sell',
                 order_type="Market",
-                qty=posQt,
+                qty=buyPosQt,
                 time_in_force="GoodTillCancel",
                 reduce_only=True,
                 close_on_trigger=True,
