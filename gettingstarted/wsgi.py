@@ -136,45 +136,45 @@ def webhook():
                 amount=(-positionAmt)
             )
 
-            balance = binance.fetch_balance(params={"type": "future"})
-            free = float(balance['USDT']['free'])
-            # 구입가능현금보유액 계산
-            cash = 0.0
-            if free > seed:
-                cash = seed
-            else:
-                cash = free-5
-            # 산규주문가능수량
-            qty = (cash / current_price) * (leverage)
-            if qty < 1:
-                qty = str(qty)[0:5]
-            else:
-                qty = round(qty)
+        balance = binance.fetch_balance(params={"type": "future"})
+        free = float(balance['USDT']['free'])
+        # 구입가능현금보유액 계산
+        cash = 0.0
+        if free > seed:
+            cash = seed
+        else:
+            cash = free-5
+        # 산규주문가능수량
+        qty = (cash / current_price) * (leverage)
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = round(qty)
 
-            # 신규 롱포지션 진입
-            if comment == "Long Only":
-                binance.create_order(
-                    symbol=symbol,
-                    type="MARKET",
-                    side="buy",
-                    amount=qty
-                )
-                # 신규 롱포지션 stop loss 설정
-                binance.create_order(
-                    symbol=symbol,
-                    type="STOP_MARKET",
-                    side="sell",
-                    amount=qty,
-                    params={'stopPrice': current_price * lossPerPrice}
-                )
-                # take profit 설정
-                binance.create_order(
-                    symbol=symbol,
-                    type="TAKE_PROFIT_MARKET",
-                    side="sell",
-                    amount=qty,
-                    params={'stopPrice': current_price * profitPerPrice}
-                )
+        # 신규 롱포지션 진입
+        if comment == "Long Only":
+            binance.create_order(
+                symbol=symbol,
+                type="MARKET",
+                side="buy",
+                amount=qty
+            )
+            # 신규 롱포지션 stop loss 설정
+            binance.create_order(
+                symbol=symbol,
+                type="STOP_MARKET",
+                side="sell",
+                amount=qty,
+                params={'stopPrice': current_price * lossPerPrice}
+            )
+            # take profit 설정
+            binance.create_order(
+                symbol=symbol,
+                type="TAKE_PROFIT_MARKET",
+                side="sell",
+                amount=qty,
+                params={'stopPrice': current_price * profitPerPrice}
+            )
     if orderType == "sell":
         if float(positionAmt) > 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
@@ -192,45 +192,45 @@ def webhook():
                 amount=positionAmt
             )
 
-            balance = binance.fetch_balance(params={"type": "future"})
-            free = float(balance['USDT']['free'])
-            # 구입가능현금보유액 계산
-            cash = 0.0
-            if free > seed:
-                cash = seed
-            else:
-                cash = free-5
-            # 산규주문가능수량
-            qty = (cash / current_price) * (leverage)
-            if qty < 1:
-                qty = str(qty)[0:5]
-            else:
-                qty = round(qty)
+        balance = binance.fetch_balance(params={"type": "future"})
+        free = float(balance['USDT']['free'])
+        # 구입가능현금보유액 계산
+        cash = 0.0
+        if free > seed:
+            cash = seed
+        else:
+            cash = free-5
+        # 산규주문가능수량
+        qty = (cash / current_price) * (leverage)
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = round(qty)
 
-            # 신규 숏포지션 진입
-            if comment == "Short Only":
-                binance.create_order(
-                    symbol=symbol,
-                    type="MARKET",
-                    side="sell",
-                    amount=qty
-                )
-                # 신규 숏포지션 stop loss 설정
-                binance.create_order(
-                    symbol=symbol,
-                    type="STOP_MARKET",
-                    side="buy",
-                    amount=qty,
-                    params={'stopPrice': current_price * lossPerPrice}
-                )
-                # take profit 설정
-                binance.create_order(
-                    symbol=symbol,
-                    type="TAKE_PROFIT_MARKET",
-                    side="buy",
-                    amount=qty,
-                    params={'stopPrice': current_price * profitPerPrice}
-                )
+        # 신규 숏포지션 진입
+        if comment == "Short Only":
+            binance.create_order(
+                symbol=symbol,
+                type="MARKET",
+                side="sell",
+                amount=qty
+            )
+            # 신규 숏포지션 stop loss 설정
+            binance.create_order(
+                symbol=symbol,
+                type="STOP_MARKET",
+                side="buy",
+                amount=qty,
+                params={'stopPrice': current_price * lossPerPrice}
+            )
+            # take profit 설정
+            binance.create_order(
+                symbol=symbol,
+                type="TAKE_PROFIT_MARKET",
+                side="buy",
+                amount=qty,
+                params={'stopPrice': current_price * profitPerPrice}
+            )
 
 
 @app.route('/webhook/bybit', methods = ['POST'])
@@ -339,22 +339,22 @@ def webhook_bybit():
                 reduce_only=True,
                 close_on_trigger=True,
             )
-            if comment == "Long Only":
-                # 매수/롱 포지션 진입
-                lossprice = str(current_buy_price * lossPerPrice)
-                profitprice = str(current_buy_price * profitPerPrice)
-                print(profitprice[0:len(str(current_buy_price))])
-                resp = exchange.place_active_order(
-                    symbol=symbol,
-                    side="Buy",
-                    order_type="Market",
-                    qty=qty,
-                    time_in_force="GoodTillCancel",
-                    reduce_only=False,
-                    close_on_trigger=False,
-                    take_profit=profitprice[0:len(str(current_buy_price))],
-                    stop_loss=lossprice[0:len(str(current_buy_price))]
-                )
+        if comment == "Long Only":
+            # 매수/롱 포지션 진입
+            lossprice = str(current_buy_price * lossPerPrice)
+            profitprice = str(current_buy_price * profitPerPrice)
+            print(profitprice[0:len(str(current_buy_price))])
+            resp = exchange.place_active_order(
+                symbol=symbol,
+                side="Buy",
+                order_type="Market",
+                qty=qty,
+                time_in_force="GoodTillCancel",
+                reduce_only=False,
+                close_on_trigger=False,
+                take_profit=profitprice[0:len(str(current_buy_price))],
+                stop_loss=lossprice[0:len(str(current_buy_price))]
+            )
 
     if orderType == "sell":
         # 산규주문가능수량 계산
@@ -375,23 +375,23 @@ def webhook_bybit():
                 reduce_only=True,
                 close_on_trigger=True,
             )
-            if comment == "Short Only":
-                # 매도/숏 포지션 진입
-                lossprice = str(current_sell_price * lossPerPrice)
-                profitprice = str(current_sell_price * profitPerPrice)
+        if comment == "Short Only":
+            # 매도/숏 포지션 진입
+            lossprice = str(current_sell_price * lossPerPrice)
+            profitprice = str(current_sell_price * profitPerPrice)
 
-                exchange.place_active_order(
-                    symbol=symbol,
-                    side="Sell",
-                    order_type="Market",
-                    qty=qty,
-                    time_in_force="GoodTillCancel",
-                    reduce_only=False,
-                    close_on_trigger=False,
-                    take_profit=profitprice[0:len(str(current_sell_price))],
-                    stop_loss=lossprice[0:len(str(current_sell_price))]
+            exchange.place_active_order(
+                symbol=symbol,
+                side="Sell",
+                order_type="Market",
+                qty=qty,
+                time_in_force="GoodTillCancel",
+                reduce_only=False,
+                close_on_trigger=False,
+                take_profit=profitprice[0:len(str(current_sell_price))],
+                stop_loss=lossprice[0:len(str(current_sell_price))]
 
-                )
+            )
 
 
 
