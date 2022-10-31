@@ -1,7 +1,7 @@
 
 from flask import Flask, request, json
 from pybit import HTTP
-from pybit.inverse_perpetual import HTTP
+# from pybit.inverse_perpetual import HTTP
 import ccxt
 
 app = Flask(__name__)
@@ -195,6 +195,7 @@ def webhook():
 
         balance = binance.fetch_balance(params={"type": "future"})
         free = float(balance['USDT']['free'])
+
         # 구입가능현금보유액 계산
         cash = 0.0
         if free > seed:
@@ -281,6 +282,9 @@ def webhook_bybit():
 
     # 보유COIN 조회
     positions = exchange.my_position(symbol=symbol)['result']
+    # print(free)
+    # print(exchange.my_position(symbol="ADAUSDT"),)
+    # return
 
     # 구입가능현금보유액 계산
     cash = 0.0
@@ -380,7 +384,6 @@ def webhook_bybit():
             # 매도/숏 포지션 진입
             lossprice = str(current_sell_price * lossPerPrice)
             profitprice = str(current_sell_price * profitPerPrice)
-
             exchange.place_active_order(
                 symbol=symbol,
                 side="Sell",
@@ -393,7 +396,7 @@ def webhook_bybit():
                 stop_loss=lossprice[0:len(str(current_sell_price))]
 
             )
-
+    return
 
 
 if __name__ == '__main__':
