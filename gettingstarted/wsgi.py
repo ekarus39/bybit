@@ -1,9 +1,8 @@
 
 from flask import Flask, request, json
 # from pybit import HTTP
-from pybit.spot import HTTP
-# from pybit.inverse_perpetual import HTTP
-# from pybit.inverse_perpetual import HTTP
+# from pybit.spot import HTTP
+from pybit.inverse_perpetual import HTTP
 import ccxt
 
 app = Flask(__name__)
