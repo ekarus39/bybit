@@ -1,12 +1,14 @@
 
 from flask import Flask, request, json
-from pybit import HTTP
+# from pybit import HTTP
+from pybit.spot import HTTP
+# from pybit.inverse_perpetual import HTTP
 # from pybit.inverse_perpetual import HTTP
 import ccxt
 
 app = Flask(__name__)
 
-# 실행환경 0:로컬 / 1:heroku서버
+# 실행환경 0:로컬 / 1:서버
 process = 1
 
 @app.route('/')
@@ -18,13 +20,12 @@ def webhook():
 
     # API key ###################################
     if process == 0:
-        # 로컬파일패스
+        # 로컬
         with open("../binance-apiKey.txt") as f:
             lines = f.readlines()
             apiKey = lines[0].strip()
             secret = lines[1].strip()
     else:
-        # heroku
         with open("binance-apiKey.txt") as f:
             lines = f.readlines()
             apiKey = lines[0].strip()
@@ -246,7 +247,6 @@ def webhook_bybit():
             apiKey = lines[0].strip()
             secret = lines[1].strip()
     else:
-        # heroku
         with open("bybit-apiKey.txt") as f:
             lines = f.readlines()
             apiKey = lines[0].strip()
@@ -354,7 +354,7 @@ def webhook_bybit():
                 side="Buy",
                 order_type="Market",
                 qty=qty,
-                time_in_force="ImmediateOrCancel",
+                time_in_force="GoodTillCancel",
                 reduce_only=False,
                 close_on_trigger=False,
                 take_profit=profitprice[0:len(str(current_buy_price))],
@@ -389,7 +389,7 @@ def webhook_bybit():
                 side="Sell",
                 order_type="Market",
                 qty=qty,
-                time_in_force="ImmediateOrCancel",
+                time_in_force="GoodTillCancel",
                 reduce_only=False,
                 close_on_trigger=False,
                 take_profit=profitprice[0:len(str(current_sell_price))],
