@@ -6,7 +6,7 @@ import ccxt
 app = Flask(__name__)
 
 # 실행환경 0:로컬 / 1:서버
-process = 1
+process = 0
 
 @app.route('/')
 def index():
@@ -16,7 +16,7 @@ def index():
 def webhook():
 
     # API key ###################################
-    if process == 0:
+    if process == 1:
         # 로컬
         with open("../binance-apiKey.txt") as f:
             lines = f.readlines()
@@ -279,9 +279,6 @@ def webhook_bybit():
 
     # 보유COIN 조회
     positions = exchange.my_position(symbol=symbol)['result']
-    # print(free)
-    # print(exchange.my_position(symbol="ADAUSDT"),)
-    # return
 
     # 구입가능현금보유액 계산
     cash = 0.0
