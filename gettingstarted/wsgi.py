@@ -277,6 +277,9 @@ def webhook_bybit():
     # USDT 잔고조회
     free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
 
+    # print(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
+    # return
+
     # 보유COIN 조회
     positions = exchange.my_position(symbol=symbol)['result']
 
