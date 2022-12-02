@@ -346,7 +346,7 @@ def webhook_bybit():
             lossprice = str(current_buy_price * lossPerPrice)
             profitprice = str(current_buy_price * profitPerPrice)
             print(profitprice[0:len(str(current_buy_price))])
-            resp = exchange.place_active_order(
+            exchange.place_active_order(
                 symbol=symbol,
                 side="Buy",
                 order_type="Market",
