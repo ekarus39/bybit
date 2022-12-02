@@ -275,8 +275,8 @@ def webhook_bybit():
     symbol = data['ticker'][0:len(data['ticker']) - 4] + data['ticker'][-4:]
     #############################################
 
-    # USDT 잔고조회
-    free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
+    # # USDT 잔고조회
+    # free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
 
     # 보유COIN 조회
     positions = exchange.my_position(symbol=symbol)['result']
@@ -284,12 +284,12 @@ def webhook_bybit():
     # print(free)
     # return 'result'
 
-    # 구입가능현금보유액 계산
-    cash = 0.0
-    if free > seed:
-        cash = seed
-    else:
-        cash = free
+    # # 구입가능현금보유액 계산
+    # cash = 0.0
+    # if free > seed:
+    #     cash = seed
+    # else:
+    #     cash = free
 
     buyLeverage = 0.0
     sellLeverage = 0.0
@@ -324,13 +324,6 @@ def webhook_bybit():
                 sellPosQt = position["size"]
 
     if orderType == "buy":
-        # 산규주문가능수량 계산
-        qty = ((cash / current_buy_price) * (buyLeverage))
-        if qty < 1:
-            qty = str(qty)[0:5]
-        else:
-            qty = math.trunc(qty)
-
         if sellPosQt > 0:
             # 보유포지션 청산
             exchange.place_active_order(
@@ -342,11 +335,27 @@ def webhook_bybit():
                 reduce_only=True,
                 close_on_trigger=True,
             )
+
+        # USDT 잔고조회
+        free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
+        # 구입가능현금보유액 계산
+        cash = 0.0
+        if free > seed:
+            cash = seed
+        else:
+            cash = free
+        # 산규주문가능수량 계산
+        qty = ((cash / current_buy_price) * (buyLeverage))
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = math.trunc(qty)
+
         if comment == "Long Only":
             # 매수/롱 포지션 진입
             lossprice = str(current_buy_price * lossPerPrice)
             profitprice = str(current_buy_price * profitPerPrice)
-            print(profitprice[0:len(str(current_buy_price))])
+            # print(profitprice[0:len(str(current_buy_price))])
             exchange.place_active_order(
                 symbol=symbol,
                 side="Buy",
@@ -360,13 +369,6 @@ def webhook_bybit():
             )
 
     if orderType == "sell":
-        # 산규주문가능수량 계산
-        qty = ((cash / current_sell_price) * (sellLeverage))
-        if qty < 1:
-            qty = str(qty)[0:5]
-        else:
-            qty = math.trunc(qty)
-
         if buyPosQt > 0:
              # 보유포지션 청산
             exchange.place_active_order(
@@ -378,6 +380,22 @@ def webhook_bybit():
                 reduce_only=True,
                 close_on_trigger=True,
             )
+
+        # USDT 잔고조회
+        free = float(exchange.get_wallet_balance(coin="USDT")['result']['USDT']['available_balance'])
+        # 구입가능현금보유액 계산
+        cash = 0.0
+        if free > seed:
+            cash = seed
+        else:
+            cash = free
+        # 산규주문가능수량 계산
+        qty = ((cash / current_buy_price) * (sellLeverage))
+        if qty < 1:
+            qty = str(qty)[0:5]
+        else:
+            qty = math.trunc(qty)
+
         if comment == "Short Only":
             # 매도/숏 포지션 진입
             lossprice = str(current_sell_price * lossPerPrice)
