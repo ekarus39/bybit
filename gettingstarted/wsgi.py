@@ -2,6 +2,7 @@
 from flask import Flask, request, json
 from pybit.usdt_perpetual import HTTP
 import ccxt
+import math
 
 app = Flask(__name__)
 
@@ -328,7 +329,7 @@ def webhook_bybit():
         if qty < 1:
             qty = str(qty)[0:5]
         else:
-            qty = round(qty)
+            qty = math.trunc(qty)
 
         if sellPosQt > 0:
             # 보유포지션 청산
@@ -364,7 +365,7 @@ def webhook_bybit():
         if qty < 1:
             qty = str(qty)[0:5]
         else:
-            qty = round(qty)
+            qty = math.trunc(qty)
 
         if buyPosQt > 0:
              # 보유포지션 청산
