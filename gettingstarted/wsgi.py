@@ -17,21 +17,17 @@ def index():
 def webhook():
 
     # API key ###################################
-    # if process == 0:
-    #     # 로컬
-    #     with open("../binance-apiKey.txt") as f:
-    #         lines = f.readlines()
-    #         apiKey = lines[0].strip()
-    #         secret = lines[1].strip()
-    # else:
-    #     with open("binance-apiKey.txt") as f:
-    #         lines = f.readlines()
-    #         apiKey = lines[0].strip()
-    #         secret = lines[1].strip()
-    with open("./binance-apiKey.txt") as f:
-        lines = f.readlines()
-        apiKey = lines[0].strip()
-        secret = lines[1].strip()
+    if process == 0:
+        # 로컬
+        with open("../binance-apiKey.txt") as f:
+            lines = f.readlines()
+            apiKey = lines[0].strip()
+            secret = lines[1].strip()
+    else:
+        with open("binance-apiKey.txt") as f:
+            lines = f.readlines()
+            apiKey = lines[0].strip()
+            secret = lines[1].strip()
 
     # binance 객체 생성
     binance = ccxt.binance(config={
@@ -211,21 +207,17 @@ def webhook():
 def webhook_bybit():
 
     # API key ###################################
-    # if process == 0:
-    #     # 로컬파일패스
-    #     with open("../bybit-apiKey.txt") as f:
-    #         lines = f.readlines()
-    #         apiKey = lines[0].strip()
-    #         secret = lines[1].strip()
-    # else:
-    #     with open("bybit-apiKey.txt") as f:
-    #         lines = f.readlines()
-    #         apiKey = lines[0].strip()
-    #         secret = lines[1].strip()
-    with open("./bybit-apiKey.txt") as f:
-        lines = f.readlines()
-        apiKey = lines[0].strip()
-        secret = lines[1].strip()
+    if process == 0:
+        # 로컬파일패스
+        with open("../bybit-apiKey.txt") as f:
+            lines = f.readlines()
+            apiKey = lines[0].strip()
+            secret = lines[1].strip()
+    else:
+        with open("bybit-apiKey.txt") as f:
+            lines = f.readlines()
+            apiKey = lines[0].strip()
+            secret = lines[1].strip()
 
     # bybit 객체 생성
     exchange = HTTP(
