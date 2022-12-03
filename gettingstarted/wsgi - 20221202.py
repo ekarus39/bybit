@@ -56,35 +56,68 @@ def webhook():
 
     # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + "/" + data['ticker'][-4:]
-    #############################################
-
-    # 바이낸스에 USDS-M 선물 잔고조회 ###############
-    balance = binance.fetch_balance(params={"type": "future"})
-    positions = balance['info']['positions']
-
-    # 현재가격조회
-    current_price = float(binance.fetch_ticker(symbol)['last'])
 
     # 손절퍼센트 설정
     lossPerPrice = 0.0
     # 익절퍼센트 설정
     profitPerPrice = 0.0
 
-    # 보유포지션/레버리지
-    positionAmt = 0.0
-    leverage = 0
     if orderType == 'buy':
         lossPerPrice = 1 - (float(lossPer) / 100)
         profitPerPrice = 1 + (float(profitPer) / 100)
     if orderType == 'sell':
         lossPerPrice = 1 + (float(lossPer) / 100)
         profitPerPrice = 1 - (float(profitPer) / 100)
+    #############################################
+
+    # 바이낸스에 USDS-M 선물 잔고조회 ###############
+    balance = binance.fetch_balance(params={"type": "future"})
+    positions = balance['info']['positions']
+    # 보유포지션
+    positionAmt = 0.0
+    leverage = 0
 
     for position in positions:
         if position["symbol"] == data['ticker']:
             positionAmt = float(position['positionAmt'])
+            # pprint.pprint(position)
+
+            # 현재가격조회
+            current_price = float(binance.fetch_ticker(symbol)['last'])
+            # 구입가능현금보유액
+            cash = 0
             # 현재 설정되어있는 레버라지 취득
             leverage = float(position['leverage'])
+
+    free = float(balance['USDT']['free'])
+    if seed == 0:
+        cash = free
+    else:
+        if positionAmt == 0:
+            if free > seed:
+                cash = seed
+            else:
+                cash = free
+        else:
+            if positionAmt < 0:
+                if seed > free + (-positionAmt * current_price):
+                    cash = free + (-positionAmt * current_price)
+                else:
+                    cash = seed
+            else:
+                if seed > free + (positionAmt * current_price):
+                    cash = free + (positionAmt * current_price)
+                else:
+                    cash = seed
+
+
+    # 신규주문가능수량
+    qty = (cash/current_price) * (leverage)
+    if qty < 1:
+        qty = str(qty)[0:5]
+    else:
+        qty = round(qty)
+    ############################################
 
     if orderType == "buy":
         if float(positionAmt) < 0.0:
@@ -103,7 +136,6 @@ def webhook():
                 amount=(-positionAmt)
             )
 
-        # USDT 잔고조회
         balance = binance.fetch_balance(params={"type": "future"})
         free = float(balance['USDT']['free'])
         # 구입가능현금보유액 계산
@@ -111,13 +143,13 @@ def webhook():
         if free > seed:
             cash = seed
         else:
-            cash = free
+            cash = free-5
         # 산규주문가능수량
-        qty = (cash / current_price) * leverage
+        qty = (cash / current_price) * (leverage)
         if qty < 1:
             qty = str(qty)[0:5]
         else:
-            qty = math.trunc(qty)
+            qty = round(qty)
 
         # 신규 롱포지션 진입
         if comment == "Long Only":
@@ -168,13 +200,13 @@ def webhook():
         if free > seed:
             cash = seed
         else:
-            cash = free
+            cash = free-5
         # 산규주문가능수량
-        qty = (cash / current_price) * leverage
+        qty = (cash / current_price) * (leverage)
         if qty < 1:
             qty = str(qty)[0:5]
         else:
-            qty = math.trunc(qty)
+            qty = round(qty)
 
         # 신규 숏포지션 진입
         if comment == "Short Only":
@@ -200,7 +232,6 @@ def webhook():
                 amount=qty,
                 params={'stopPrice': current_price * profitPerPrice}
             )
-    return 'ok'
 
 
 @app.route('/webhook/bybit', methods = ['POST'])
