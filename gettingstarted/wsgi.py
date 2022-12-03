@@ -113,7 +113,7 @@ def webhook():
         else:
             cash = free
         # 산규주문가능수량
-        qty = (cash / current_price) * leverage
+        qty = (cash / current_price) * (leverage-1)
         if qty < 1:
             qty = str(qty)[0:5]
         else:
@@ -170,7 +170,7 @@ def webhook():
         else:
             cash = free
         # 산규주문가능수량
-        qty = (cash / current_price) * leverage
+        qty = (cash / current_price) * (leverage-1)
         if qty < 1:
             qty = str(qty)[0:5]
         else:
@@ -300,7 +300,7 @@ def webhook_bybit():
         else:
             cash = free
         # 산규주문가능수량 계산
-        qty = ((cash / current_buy_price) * (buyLeverage))
+        qty = (cash / current_buy_price) * (buyLeverage-1)
         if qty < 1:
             qty = str(qty)[0:5]
         else:
@@ -345,7 +345,7 @@ def webhook_bybit():
         else:
             cash = free
         # 산규주문가능수량 계산
-        qty = ((cash / current_buy_price) * (sellLeverage))
+        qty = (cash / current_buy_price) * (sellLeverage-1)
         if qty < 1:
             qty = str(qty)[0:5]
         else:
