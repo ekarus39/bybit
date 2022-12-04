@@ -6,9 +6,6 @@ import math
 
 app = Flask(__name__)
 
-# 실행환경 0:로컬 / 1:서버
-process = 1
-
 @app.route('/')
 def index():
    return 'Hello, Flask!'
@@ -17,17 +14,10 @@ def index():
 def webhook_binance():
 
     # API key ###################################
-    if process == 0:
-        # 로컬
-        with open("../binance-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
-    else:
-        with open("binance-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
+    with open("binance-apiKey.txt") as f:
+        lines = f.readlines()
+        apiKey = lines[0].strip()
+        secret = lines[1].strip()
 
     # binance 객체 생성
     binance = ccxt.binance(config={
@@ -38,8 +28,6 @@ def webhook_binance():
             'defaultType': 'future'
         }
     })
-    #############################################
-
 
     # 트레이딩뷰에서 보내온 알림해석 #################
     data = json.loads(request.data)
@@ -207,17 +195,10 @@ def webhook_binance():
 def webhook_bybit():
 
     # API key ###################################
-    if process == 0:
-        # 로컬파일패스
-        with open("../bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
-    else:
-        with open("bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
+    with open("bybit-apiKey.txt") as f:
+        lines = f.readlines()
+        apiKey = lines[0].strip()
+        secret = lines[1].strip()
 
     # bybit 객체 생성
     exchange = HTTP(
@@ -225,7 +206,6 @@ def webhook_bybit():
         api_key=apiKey,
         api_secret=secret
     )
-    #############################################
 
     # 트레이딩뷰에서 보내온 알림해석 #################
     data = json.loads(request.data)
@@ -242,7 +222,6 @@ def webhook_bybit():
 
     # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + data['ticker'][-4:]
-    #############################################
 
     # 보유COIN 조회
     positions = exchange.my_position(symbol=symbol)['result']
@@ -371,19 +350,15 @@ def webhook_bybit():
 
 @app.route('/webhook', methods = ['POST'])
 def webhook():
+    ###################################
+    # 바이낸스 주문 처리
+    ###################################
 
     # API key ###################################
-    if process == 0:
-        # 로컬파일패스
-        with open("../bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
-    else:
-        with open("bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
+    with open("binance-apiKey.txt") as f:
+        lines = f.readlines()
+        apiKey = lines[0].strip()
+        secret = lines[1].strip()
 
     # binance 객체 생성
     binance = ccxt.binance(config={
@@ -410,7 +385,6 @@ def webhook():
 
     # 거래대상 코인
     symbol = data['ticker'][0:len(data['ticker']) - 4] + "/" + data['ticker'][-4:]
-    #############################################
 
     # 바이낸스에 USDS-M 선물 잔고조회 ###############
     balance = binance.fetch_balance(params={"type": "future"})
@@ -556,19 +530,16 @@ def webhook():
                 params={'stopPrice': current_price * profitPerPrice}
             )
 
+
+    ###################################
+    # 바이비트 주문처리
+    ###################################
+
     # API key ###################################
-    if process == 0:
-        # 로컬파일패스
-        # with open("../bybit-apiKey.txt") as f:
-        with open("binance-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
-    else:
-        with open("bybit-apiKey.txt") as f:
-            lines = f.readlines()
-            apiKey = lines[0].strip()
-            secret = lines[1].strip()
+    with open("bybit-apiKey.txt") as f:
+        lines = f.readlines()
+        apiKey = lines[0].strip()
+        secret = lines[1].strip()
 
     # bybit 객체 생성
     exchange = HTTP(
@@ -576,7 +547,6 @@ def webhook():
         api_key=apiKey,
         api_secret=secret
     )
-    #############################################
 
     # 트레이딩뷰에서 보내온 알림해석 #################
     data = json.loads(request.data)
