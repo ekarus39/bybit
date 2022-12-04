@@ -77,10 +77,10 @@ def webhook_binance():
     if orderType == "buy":
         if float(positionAmt) < 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
-            for order_id in open_order:
+            for order in open_order:
                 # 현재 보유중인 포지션의 손절/익절 주문 취소
                 binance.cancel_order(
-                    id=order_id['info']['orderId'],
+                    id=order['info']['orderId'],
                     symbol=symbol
                 )
             # 현재 보유중인 숏포지션 정리 &
@@ -134,10 +134,10 @@ def webhook_binance():
     if orderType == "sell":
         if float(positionAmt) > 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
-            for order_id in open_order:
+            for order in open_order:
                 # 현재 보유중인 포지션의 손절/익절 주문 취소
                 binance.cancel_order(
-                    id=order_id,
+                    id=order['info']['orderId'],
                     symbol=symbol
                 )
             # 현재 보유중인 롱포지션 정리
@@ -360,9 +360,6 @@ def webhook():
         apiKey = lines[0].strip()
         secret = lines[1].strip()
 
-    # print(apiKey)
-    # return 'apiKey'
-
     # binance 객체 생성
     binance = ccxt.binance(config={
         'apiKey': apiKey,
@@ -420,10 +417,10 @@ def webhook():
     if orderType == "buy":
         if float(positionAmt) < 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
-            for order_id in open_order:
+            for order in open_order:
                 # 현재 보유중인 포지션의 손절/익절 주문 취소
                 binance.cancel_order(
-                    id=order_id['info']['orderId'],
+                    id=order['info']['orderId'],
                     symbol=symbol
                 )
             # 현재 보유중인 숏포지션 정리 &
@@ -478,10 +475,10 @@ def webhook():
     if orderType == "sell":
         if float(positionAmt) > 0.0:
             open_order = binance.fetch_open_orders(symbol=symbol)
-            for order_id in open_order:
+            for order in open_order:
                 # 현재 보유중인 포지션의 손절/익절 주문 취소
                 binance.cancel_order(
-                    id=order_id,
+                    id=order['info']['orderId'],
                     symbol=symbol
                 )
             # 현재 보유중인 롱포지션 정리
