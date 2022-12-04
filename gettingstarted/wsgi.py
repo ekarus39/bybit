@@ -360,6 +360,9 @@ def webhook():
         apiKey = lines[0].strip()
         secret = lines[1].strip()
 
+    # print(apiKey)
+    # return 'apiKey'
+
     # binance 객체 생성
     binance = ccxt.binance(config={
         'apiKey': apiKey,
