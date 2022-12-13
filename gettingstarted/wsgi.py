@@ -489,6 +489,7 @@ def webhook():
                 amount=positionAmt
             )
 
+        # USDT 잔고조회
         balance = binance.fetch_balance(params={"type": "future"})
         free = float(balance['USDT']['free'])
 
