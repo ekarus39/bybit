@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-   return 'Hello, Flask!'
+   return 'Hello, Flask!!!'
 
 @app.route('/webhook/binance', methods = ['POST'])
 def webhook_binance():
