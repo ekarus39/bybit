@@ -18,7 +18,7 @@ def webhook_binance():
         lines = f.readlines()
         apiKey = lines[0].strip()
         secret = lines[1].strip()
- 
+
     # binance 객체 생성
     binance = ccxt.binance(config={
         'apiKey': apiKey,
@@ -201,6 +201,7 @@ def webhook_bybit():
         secret = lines[1].strip()
 
     # bybit 객체 생성
+    #선물
     exchange = HTTP(
         endpoint="https://api.bybit.com",
         api_key=apiKey,
