@@ -8,7 +8,7 @@ attrs==22.1.0
 bravado==10.4.1
 bravado-core==5.17.1
 Bybit==0.2.12
-ccxt==1.93.18
+ccxt==1.93.1
 certifi==2022.6.15
 cffi==1.15.1
 charset-normalizer==2.1.1
